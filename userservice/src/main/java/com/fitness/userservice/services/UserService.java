@@ -5,6 +5,7 @@ import com.fitness.userservice.dto.RegisterRequest;
 import com.fitness.userservice.dto.UserResponse;
 import com.fitness.userservice.models.User;
 import lombok.AllArgsConstructor;
+import org.apache.coyote.Request;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +16,22 @@ public class UserService {
     public UserResponse register(RegisterRequest request) {
 
         if(repository.existsByEmail(request.getEmail())){
-            throw new RuntimeException("Email already exists");
+            User existingUser=repository.findByEmail(request.getEmail());
+            UserResponse response=new UserResponse();
+            response.setId(existingUser.getId());
+            response.setEmail(existingUser.getEmail());
+            response.setFirstName(existingUser.getFirstName());
+            response.setLastName(existingUser.getLastName());
+            response.setPassword(existingUser.getPassword());
+            response.setCreatedAt(existingUser.getCreatedAt());
+            response.setUpdatedAt(existingUser.getUpdatedAt());
+            return response;
         }
 
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
+        user.setKeycloakId(request.getKeycloakId());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
 
@@ -28,6 +39,7 @@ public class UserService {
         UserResponse response=new UserResponse();
         response.setId(savedUser.getId());
         response.setEmail(savedUser.getEmail());
+        response.setKeycloakId(savedUser.getKeycloakId());
         response.setFirstName(savedUser.getFirstName());
         response.setLastName(savedUser.getLastName());
         response.setPassword(savedUser.getPassword());
@@ -42,6 +54,7 @@ public class UserService {
         UserResponse response=new UserResponse();
         response.setId(user.getId());
         response.setEmail(user.getEmail());
+        response.setKeycloakId(user.getKeycloakId());
         response.setFirstName(user.getFirstName());
         response.setLastName(user.getLastName());
         response.setPassword(user.getPassword());
@@ -51,6 +64,6 @@ public class UserService {
     }
 
     public Boolean existByUserId(String userId) {
-        return repository.existsById(userId);
+        return repository.existsByKeycloakId(userId);
     }
 }
