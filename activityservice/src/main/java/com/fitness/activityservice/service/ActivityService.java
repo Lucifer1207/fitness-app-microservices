@@ -8,8 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -61,5 +65,10 @@ public class ActivityService {
         activityResponse.setCreatedAt(savedActivity.getCreatedAt());
         activityResponse.setUpdatedAt(savedActivity.getUpdatedAt());
         return activityResponse;
+    }
+
+    public @Nullable List<ActivityResponse> getUserActivities(String userId) {
+        List<Activity> activityList = activityRepository.findByUserId(userId);
+        return activityList.stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 }
